@@ -53,8 +53,10 @@ end
 # Routes
 ###########################################################
 
-get '/' do
-    erb :index
+['/', '/create'].each do |route|
+    get route do
+        erb :index
+    end
 end
 
 get '/links' do

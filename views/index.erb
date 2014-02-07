@@ -1,7 +1,11 @@
-<div ng-controller="mainController">
-  <button ng-click="play()" ng-show="!playing" >Play</button>
-  <button ng-click="stop()" ng-show="playing" >Stop</button>
-  <p>Playing: {{ playing }}</p>
-  <h1>Hello, {{ yourName }}!</h1>
-  <h2>Hello, {{ name }}</h2>
+<h1>Shortly</h1>
+<div class="navigation">
+<ul>
+  <li><a href="#" class='index'>Links</a></li>
+  <li><a href="#create" class='create'>Create</a></li>
+</ul>
+</div>
+
+
+<div ng-view>
 </div>
