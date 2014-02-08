@@ -32,6 +32,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
   };
 })
+
 //Link Service
 .service("LinkService", function($http){
   this.getLinks = function(){
@@ -61,7 +62,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
   this.request = function(req){
     if(UserService.currentUser()){
-      req.url += "?" + encodeData({token: Math.random()}); 
+      req.url += "?" + encodeData({token: Math.random()});
     }
     return req;
   };
@@ -94,6 +95,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   };
 })
 
+//Links Controller
 .controller('linksController', function($scope, LinkService){
   $scope.sortBy = 'visits';
   $scope.reverse = true;
@@ -111,6 +113,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
 })
 
+//Create Controller
 .controller('createController', function($scope, LinkService){
   $scope.added = [];
 
