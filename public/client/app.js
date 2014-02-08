@@ -1,5 +1,6 @@
 var app = angular.module("shortlyApp", ['ngRoute'])
-.config(function($routeProvider){
+.config(function($routeProvider, $httpProvider){
+  $httpProvider.interceptors.push('HttpAuthInteceptor');
 
   $routeProvider
   .when('/', {
@@ -35,12 +36,36 @@ var app = angular.module("shortlyApp", ['ngRoute'])
     return $http({
       method: 'POST',
       url: '/links',
-      data: JSON.stringify({url: url})
+      data: {url: url}
     });
   };
 })
 //Authentication Service
-.service('AuthService', function($http, UserService){
+.service('HttpAuthInteceptor', function(UserService){
+  var encodeData = function (data) {
+     var ret = [];
+     for (var d in data)
+        ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+     return ret.join("&");
+  };
+
+  this.request = function(req){
+    if(UserService.currentUser()){
+      req.url += "?" + encodeData({token: Math.random()}); 
+    }
+    //console.log("Request: ", req.method, req.url, req.data);
+    return req;
+  };
+  this.response = function(res){
+    console.dir(res);
+    return res;
+  };
+  this.requestError = function(req){
+    return req;
+  };
+  this.responseError = function(res){
+    return res;
+  };
 
 })
 .controller('linksController', function($scope, LinkService){
