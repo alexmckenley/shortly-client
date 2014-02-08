@@ -27,6 +27,20 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   });
 
 })
-.controller('createController', function($scope){
+.controller('createController', function($scope, $http){
+  $scope.added = [];
+
+  $scope.createLink = function(){
+    $http({
+      method: 'POST',
+      url: '/links',
+      data: JSON.stringify($scope.newLink)
+    }).success(function(data, statusCode){
+      console.log("Created SUccessfully: ", data);
+      $scope.added.push(data);
+    }).error(function(err){
+      console.log("There was an error!", err);
+    });
+  };
 
 });
