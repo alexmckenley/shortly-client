@@ -13,6 +13,10 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
 })
 .controller('linksController', function($scope, $http){
+  $scope.sortBy = 'visits';
+  $scope.reverse = true;
+  $scope.cats = ['title','visits'];
+
 
   $http({
     method: 'GET',
