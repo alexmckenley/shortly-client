@@ -1,10 +1,11 @@
 <div class="controls" >
+<input type="text" class="text" ng-model="filter.title">
 <select type="text" ng-model='sortBy' ng-options="c for c in cats"></select>
 </div>
 
 
 <div class="links">
-<div ng-repeat="link in links | orderBy:sortBy:reverse" class="link">
+<div ng-repeat="link in links | filter:filter | orderBy:sortBy:reverse" class="link">
 <img src="/redirect_icon.png"/>
 <div class="info">
   <div class="visits"><span class="count"> {{ link.visits }} </span>Visits</div>
