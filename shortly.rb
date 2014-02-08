@@ -49,9 +49,38 @@ class Click < ActiveRecord::Base
     belongs_to :link, counter_cache: :visits
 end
 
+class User < ActiveRecord::Base
+  has_many :sessions
+
+  attr_accessor :password
+  # EMAIL_REGEX = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+  validates :username, :presence => true, :uniqueness => true, :length => { :in => 3..20 }
+  validates :email, :presence => true, :uniqueness => true #, :format => EMAIL_REGEX
+  validates :encrypted_password, :presence => true
+end
+
+class Session < ActiveRecord::Base
+  belongs_to :user
+
+  before_save do |record|
+      record.token = Digest::SHA1.hexdigest(record.user_id.to_s + Time.now.to_s)
+  end
+
+end
+
 ###########################################################
 # Routes
 ###########################################################
+before do
+  unless request.path_info == "/"
+    if Session.find_by_token(params[:token])
+
+    else
+      halt 401, "Not authorized\n"
+    end
+  end
+end
+
 
 ['/', '/create'].each do |route|
     get route do

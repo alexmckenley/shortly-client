@@ -20,7 +20,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
     currentUser = u;
   };
   this.currentUser = function(){
-    return currentUser;
+    return true;
   };
 })
 //Link Service
