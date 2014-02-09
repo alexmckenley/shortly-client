@@ -80,7 +80,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
   this.response = function(res){
 
-    return res;
+    return $q.when(res);
   };
 
   this.requestError = function(req){
@@ -92,7 +92,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
       console.dir("REJECTED");
       $location.path("/login");
     }
-    return res;
+    return $q.reject(res);
   };
 })
 
@@ -119,7 +119,8 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   $scope.added = [];
 
   $scope.createLink = function(){
-    LinkService.createLink($scope.newLink.url).then(function(data, statusCode){
+    LinkService.createLink($scope.newLink.url)
+    .then(function(data, statusCode){
       console.log("Created SUccessfully: ", data);
       $scope.added.push(data.data);
     }).catch(function(err){
@@ -135,6 +136,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
     AuthService.login($scope.user).then(function(result){
       console.log("Data: ", result);
       console.log(UserService.currentUser());
+      $location.path('/');
     }).catch(function(){
       console.log('Problem Logging in.');
       $location.path('/login');
