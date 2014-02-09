@@ -25,7 +25,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
     currentUser = u;
   };
   this.currentUser = function(){
-    return currentUser;
+    return true;
   };
 
   this.login = function(u){
@@ -34,45 +34,42 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 })
 
 //Link Service
-.service("LinkService", function($http){
+.service("LinkService", function($http, $q){
   this.getLinks = function(){
-    return $http({
+    return $q.when($http({
       method: 'GET',
       url: '/links'
-    });
+    }));
   };
 
   this.createLink = function(url) {
-    return $http({
+    return $q.when($http({
       method: 'POST',
       url: '/links',
       data: {url: url}
-    });
+    }));
   };
 })
 
 //Authentication Service
-.service('AuthService', function(UserService, $location){
-  var encodeData = function (data) {
-     var ret = [];
-     for (var d in data)
-        ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
-     return ret.join("&");
-  };
-
+.service('AuthService', function(UserService, $location, $q){
   this.request = function(req){
     if(UserService.currentUser()){
-      req.url += "?" + encodeData({token: Math.random()});
+      req.params = req.params || {};
+      req.params['token'] = Math.random();
     }
     return req;
   };
+
   this.response = function(res){
 
     return res;
   };
+
   this.requestError = function(req){
     return req;
   };
+
   this.responseError = function(res){
     if (res.status == 401) {
       console.dir("REJECTED");
@@ -102,12 +99,12 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   $scope.cats = ['title','visits'];
 
 
-  LinkService.getLinks().success(function(data, statusCode){
+  LinkService.getLinks().then(function(data){
     $scope.links = data;
 
     console.log("Success", data);
   })
-  .error(function(err){
+  .catch(function(err){
     console.log(err);
   });
 
@@ -118,10 +115,10 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   $scope.added = [];
 
   $scope.createLink = function(){
-    LinkService.createLink($scope.newLink.url).success(function(data, statusCode){
+    LinkService.createLink($scope.newLink.url).then(function(data, statusCode){
       console.log("Created SUccessfully: ", data);
       $scope.added.push(data);
-    }).error(function(err){
+    }).catch(function(err){
       console.log("There was an error!", err);
     });
   };
