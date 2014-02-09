@@ -48,6 +48,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   };
 })
 
+//Auth Service
 .service('AuthService', function($http, $q, UserService){
   this.login = function(u){
     var d = $q.defer();
@@ -72,7 +73,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   this.request = function(req){
     if(UserService.currentUser()){
       req.params = req.params || {};
-      req.params['token'] = Math.random();
+      req.params['token'] = UserService.currentUser();
     }
     return req;
   };
@@ -103,9 +104,9 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
 
   LinkService.getLinks().then(function(data){
-    $scope.links = data;
+    $scope.links = data.data;
 
-    console.log("Success", data);
+    console.log("Success", data.data);
   })
   .catch(function(err){
     console.log(err);
@@ -120,7 +121,7 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   $scope.createLink = function(){
     LinkService.createLink($scope.newLink.url).then(function(data, statusCode){
       console.log("Created SUccessfully: ", data);
-      $scope.added.push(data);
+      $scope.added.push(data.data);
     }).catch(function(err){
       console.log("There was an error!", err);
     });
@@ -128,13 +129,12 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
 })
 
-.controller('loginController', function($scope, AuthService, $location){
+.controller('loginController', function($scope, AuthService, $location, UserService){
 
   $scope.login = function () {
     AuthService.login($scope.user).then(function(result){
-      if(result){
-        $location.path('/');
-      }
+      console.log("Data: ", result);
+      console.log(UserService.currentUser());
     }).catch(function(){
       console.log('Problem Logging in.');
       $location.path('/login');

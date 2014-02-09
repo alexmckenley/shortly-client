@@ -92,7 +92,6 @@ end
 post '/login' do
   request.body.rewind
   request_payload = JSON.parse request.body.read
-  # puts request_payload.inspect
 
   user = User.find_by_username(request_payload["username"])
   puts "Found User: ", user.inspect
@@ -100,8 +99,10 @@ post '/login' do
     halt 419, "No such user exists\n"
   else
     oldHash = BCrypt::Password.new user.encrypted_password
-    if(oldHash == request_payload[:password])
-      "LOGGED IN SUCCESSFULLY! Hopefully this works."
+    if(oldHash == request_payload["password"])
+      user.sessions.create()
+      user.sessions.last().token
+
     end
   end
 end
