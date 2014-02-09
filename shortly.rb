@@ -5,6 +5,7 @@ require 'digest/sha1'
 require 'pry'
 require 'uri'
 require 'open-uri'
+require 'bcrypt'
 # require 'nokogiri'
 
 ###########################################################
@@ -72,7 +73,7 @@ end
 # Routes
 ###########################################################
 before do
-  unless request.path_info == "/"
+  unless request.path_info == "/" || request.path_info == "/login" || request.path_info == "/signup"
     if Session.find_by_token(params[:token])
 
     else
@@ -86,6 +87,29 @@ end
     get route do
         erb :index
     end
+end
+
+post '/login' do
+  request.body.rewind
+  request_payload = JSON.parse request.body.read
+  # puts request_payload.inspect
+
+  user = User.find_by_username(request_payload["username"])
+  puts "Found User: ", user.inspect
+  if user == nil
+    halt 419, "No such user exists\n"
+  else
+    oldHash = BCrypt::Password.new user.encrypted_password
+    if(oldHash == request_payload[:password])
+      "LOGGED IN SUCCESSFULLY! Hopefully this works."
+    end
+  end
+end
+
+post '/signup' do
+  hash = BCrypt::Password.create params[:password]
+  user = User.create(username: params[:username], email: params[:email], encrypted_password: hash.to_s)
+  user.to_json
 end
 
 get '/links' do

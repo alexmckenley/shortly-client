@@ -1,6 +1,6 @@
 var app = angular.module("shortlyApp", ['ngRoute'])
 .config(function($routeProvider, $httpProvider){
-  $httpProvider.interceptors.push('AuthService');
+  $httpProvider.interceptors.push('AuthInteceptor');
 
   $routeProvider
   .when('/', {
@@ -25,12 +25,9 @@ var app = angular.module("shortlyApp", ['ngRoute'])
     currentUser = u;
   };
   this.currentUser = function(){
-    return true;
+    return currentUser;
   };
 
-  this.login = function(u){
-
-  };
 })
 
 //Link Service
@@ -51,8 +48,27 @@ var app = angular.module("shortlyApp", ['ngRoute'])
   };
 })
 
-//Authentication Service
-.service('AuthService', function(UserService, $location, $q){
+.service('AuthService', function($http, $q, UserService){
+  this.login = function(u){
+    var d = $q.defer();
+    $http({
+      method: 'POST',
+      url: '/login',
+      data: u
+    }).success(function(data){
+      UserService.setUser(data);
+      d.resolve(true);
+    }).error(function (err) {
+      console.log("error logging in: ", err);
+      d.reject(false);
+    });
+
+    return d.promise;
+  };
+})
+
+//Authentication Interceptor
+.service('AuthInteceptor', function(UserService, $location, $q){
   this.request = function(req){
     if(UserService.currentUser()){
       req.params = req.params || {};
@@ -76,19 +92,6 @@ var app = angular.module("shortlyApp", ['ngRoute'])
       $location.path("/login");
     }
     return res;
-  };
-
-  this.login = function(){
-    $http({
-      method: 'POST',
-      url: '/login',
-      data: u
-    }).success(function(data){
-      currentUser = data;
-      $location.path('/');
-    }).error(function (err) {
-      console.log("error logging in: ", err);
-    });
   };
 })
 
@@ -125,10 +128,17 @@ var app = angular.module("shortlyApp", ['ngRoute'])
 
 })
 
-.controller('loginController', function($scope, UserService){
+.controller('loginController', function($scope, AuthService, $location){
 
   $scope.login = function () {
-    
-  }
+    AuthService.login($scope.user).then(function(result){
+      if(result){
+        $location.path('/');
+      }
+    }).catch(function(){
+      console.log('Problem Logging in.');
+      $location.path('/login');
+    });
+  };
 
 });
